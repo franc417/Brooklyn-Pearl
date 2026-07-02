@@ -30,9 +30,13 @@ npm run dev
 1. [supabase.com](https://supabase.com) → New Project (free tier is fine to start).
 2. **Project Settings → API** → copy the `Project URL`, `anon public` key, and
    `service_role` key into `.env.local`.
-3. **SQL Editor** → paste the entire contents of `supabase/schema.sql` → Run.
-   This creates every table, the double-booking constraint, and Row Level
-   Security policies.
+3. **SQL Editor** → run `supabase/schema.sql` first, then
+   `supabase/migrations/002_phase2.sql` — in that order. Each migration file
+   is additive; run them in numeric order as new ones are added. Both have
+   been tested end-to-end against a real Postgres instance (capacity limits,
+   the double-booking exclusion constraints, and the loyalty counters were
+   all verified with real inserts, not just checked for valid syntax) —
+   see `docs/ROADMAP.md` for what each phase covers.
 4. Add your room types (Pearl Suite, Deluxe Room, Penthouse) as rows in the
    `room_types` table, and at least one row per room in `room_units` for
    each — this is what makes real availability checking possible. Easiest
