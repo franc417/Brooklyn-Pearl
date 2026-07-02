@@ -1,0 +1,435 @@
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" onclick="toggleMenu()">✕</button>
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#rooms" onclick="toggleMenu()">Rooms</a>
+  <a href="#dining" onclick="toggleMenu()">Dining</a>
+  <a href="#gallery" onclick="toggleMenu()">Gallery</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="#booking-bar" class="btn-primary" onclick="toggleMenu()">Book Now</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <!-- Hummingbird SVG brandmark inspired by brand guide -->
+    <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="21" cy="21" r="20" stroke="#a47f50" stroke-width="1.2"/>
+      <path d="M21 10 C16 14 10 18 13 23 C16 28 22 24 21 18 C20 24 26 30 30 25 C34 20 27 15 21 10Z" fill="#a47f50" opacity="0.85"/>
+      <path d="M14 22 C10 24 8 28 11 29 C14 30 16 26 14 22Z" fill="#a47f50" opacity="0.6"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="brand">Brooklyn Pearl</div>
+      <div class="sub">Resort</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#rooms">Rooms</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#dining">Dining</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#booking-bar" class="nav-book">Reserve</a>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Welcome to Brooklyn Pearl Resort</p>
+    <h1 class="hero-title">Where Urban <em>Energy</em><br>Meets Serene Luxury</h1>
+    <p class="hero-desc">A harmonious escape where bold, modern design meets tranquility. Curated experiences that reconnect you with yourself and those you love.</p>
+    <div class="hero-ctas">
+      <a href="#rooms" class="btn-primary">Explore Rooms</a>
+      <a href="#about" class="btn-outline">Discover More</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- BOOKING BAR -->
+<div id="booking-bar">
+  <div class="booking-field">
+    <label>Check-In</label>
+    <input type="date" id="checkin"/>
+  </div>
+  <div class="booking-field">
+    <label>Check-Out</label>
+    <input type="date" id="checkout"/>
+  </div>
+  <div class="booking-field">
+    <label>Guests</label>
+    <select id="guestsCount">
+      <option value="1">1 Guest</option>
+      <option value="2">2 Guests</option>
+      <option value="3">3 Guests</option>
+      <option value="4">4+ Guests</option>
+    </select>
+  </div>
+  <div class="booking-field">
+    <label>Room Type</label>
+    <select id="roomType">
+      <option value="any">Any Room</option>
+      <option value="deluxe-room">Deluxe Room</option>
+      <option value="pearl-suite">Pearl Suite</option>
+      <option value="penthouse">Penthouse</option>
+    </select>
+  </div>
+  <button class="btn-book-now" id="checkAvailabilityBtn" type="button">Check Availability</button>
+  <p id="availabilityResult" style="width:100%; margin-top:0.75rem; font-size:0.78rem; color:var(--gold-light);"></p>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-images reveal">
+    <img class="about-img-main" src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80" alt="Resort lobby"/>
+    <img class="about-img-accent" src="https://images.unsplash.com/photo-1540541338287-41700207dee6?w=500&q=80" alt="Pool view"/>
+    <div class="about-badge">15+<span>Years</span></div>
+  </div>
+  <div class="about-text reveal">
+    <p class="section-label">Our Story</p>
+    <h2 class="section-title">A Sanctuary Built for <em>Unforgettable</em> Moments</h2>
+    <div class="divider"></div>
+    <p class="section-body">Brooklyn Pearl Resort is the definitive escape for those seeking a harmonious blend of urban energy and serene luxury. We curate experiences that reconnect guests with themselves and their loved ones — through exquisite dining, vibrant social spaces, and world-class amenities.</p>
+    <p class="section-body" style="margin-top:1rem;">Every stay, celebration, and gathering is an opportunity to bring out the joy and brilliance in life. Our mission is to empower connection and rejuvenation.</p>
+    <a href="#contact" class="btn-primary" style="margin-top:2rem; display:inline-block;">Get In Touch</a>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section id="rooms">
+  <div class="rooms-header">
+    <div>
+      <p class="section-label">Accommodation</p>
+      <h2 class="section-title">Rooms & <em>Suites</em></h2>
+    </div>
+    <a href="#contact" class="btn-primary">View All Rooms</a>
+  </div>
+  <div class="rooms-grid">
+    <div class="room-card reveal">
+      <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1000&q=80" alt="Pearl Suite"/>
+      <div class="room-overlay">
+        <span class="room-type">Signature Suite</span>
+        <div class="room-name">The Pearl Suite</div>
+        <div class="room-price">From <strong>$320</strong> / night</div>
+        <a href="#" class="room-link">Reserve Now →</a>
+      </div>
+    </div>
+    <div class="room-card reveal">
+      <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=700&q=80" alt="Deluxe Room"/>
+      <div class="room-overlay">
+        <span class="room-type">Standard</span>
+        <div class="room-name">Deluxe Room</div>
+        <div class="room-price">From <strong>$185</strong> / night</div>
+        <a href="#" class="room-link">Reserve Now →</a>
+      </div>
+    </div>
+    <div class="room-card reveal">
+      <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=700&q=80" alt="Penthouse"/>
+      <div class="room-overlay">
+        <span class="room-type">Premium</span>
+        <div class="room-name">Penthouse</div>
+        <div class="room-price">From <strong>$580</strong> / night</div>
+        <a href="#" class="room-link">Reserve Now →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div style="text-align:center; max-width:620px; margin:0 auto;">
+    <p class="section-label" style="color:var(--gold-light)">Amenities</p>
+    <h2 class="section-title" style="color:var(--white)">The Full <em>Brooklyn Pearl</em> Experience</h2>
+    <p class="section-body" style="color:rgba(255,255,255,0.6); margin:0 auto;">Every detail has been crafted to deliver joy, comfort, and memories that last a lifetime.</p>
+  </div>
+  <div class="exp-grid reveal">
+    <div class="exp-item">
+      <div class="exp-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3>Luxury Rooms</h3>
+      <p>Thoughtfully appointed spaces with premium linens, smart controls, and panoramic views.</p>
+    </div>
+    <div class="exp-item">
+      <div class="exp-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <h3>Spa & Wellness</h3>
+      <p>Rejuvenate with signature treatments, steam rooms, and holistic wellness programmes.</p>
+    </div>
+    <div class="exp-item">
+      <div class="exp-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h3>Prime Location</h3>
+      <p>Centrally located with easy access to attractions, transport links, and cultural hubs.</p>
+    </div>
+    <div class="exp-item">
+      <div class="exp-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+      </div>
+      <h3>Event Spaces</h3>
+      <p>Versatile venues for weddings, conferences, and celebrations of all scales.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DINING -->
+<section id="dining">
+  <div class="dining-img reveal">
+    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="Fine dining"/>
+  </div>
+  <div class="reveal">
+    <p class="section-label">Culinary Arts</p>
+    <h2 class="section-title">Exquisite Dining <em>Experiences</em></h2>
+    <div class="divider"></div>
+    <p class="section-body">From our signature restaurant to rooftop cocktail bar, every culinary moment at Brooklyn Pearl is crafted to delight. Local flavors meet international technique in an atmosphere that is as beautiful as the food itself.</p>
+    <div class="dining-features">
+      <div class="dining-feat">
+        <div class="feat-dot"></div>
+        <div>
+          <h4>Pearl Restaurant</h4>
+          <p>Modern cuisine with locally sourced ingredients</p>
+        </div>
+      </div>
+      <div class="dining-feat">
+        <div class="feat-dot"></div>
+        <div>
+          <h4>Rooftop Bar</h4>
+          <p>Craft cocktails with skyline panoramas</p>
+        </div>
+      </div>
+      <div class="dining-feat">
+        <div class="feat-dot"></div>
+        <div>
+          <h4>Poolside Grill</h4>
+          <p>Casual al fresco dining by the pool</p>
+        </div>
+      </div>
+      <div class="dining-feat">
+        <div class="feat-dot"></div>
+        <div>
+          <h4>In-Room Dining</h4>
+          <p>24-hour menu delivered to your suite</p>
+        </div>
+      </div>
+    </div>
+    <a href="#contact" class="btn-primary" style="margin-top:2rem; display:inline-block;">Reserve a Table</a>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <p class="section-label">Visual Journey</p>
+    <h2 class="section-title">Life at <em>Brooklyn Pearl</em></h2>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item tall"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Hotel pool"/></div>
+    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80" alt="Hotel exterior"/></div>
+    <div class="gallery-item wide"><img src="https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=900&q=80" alt="Dining area"/></div>
+    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1600011689032-8b628b8a8747?w=600&q=80" alt="Room interior"/></div>
+    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Spa"/></div>
+    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&q=80" alt="Bar"/></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <p class="section-label" style="color:var(--gold-light); text-align:center;">Guest Reviews</p>
+  <h2 class="section-title" style="text-align:center; color:var(--white)">What Our Guests <em>Say</em></h2>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"Brooklyn Pearl exceeded every expectation. The service was impeccable, the food divine, and the rooms felt like a personal sanctuary. We'll be back."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=47" alt="Sarah M"/>
+        <div>
+          <div class="testi-name">Sarah Mitchell</div>
+          <div class="testi-loc">New York, USA</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"The rooftop bar at sunset is simply unforgettable. The staff went above and beyond to make our anniversary celebration truly special."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=12" alt="James O"/>
+        <div>
+          <div class="testi-name">James Okonkwo</div>
+          <div class="testi-loc">Lagos, Nigeria</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"A perfect blend of modern luxury and warm hospitality. The Pearl Suite was worth every penny — breathtaking views and absolute comfort."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=32" alt="Amara K"/>
+        <div>
+          <div class="testi-name">Amara Kamara</div>
+          <div class="testi-loc">London, UK</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<div id="cta-strip">
+  <div class="cta-text">
+    <h2>Ready to Experience Brooklyn Pearl?</h2>
+    <p>Reserve your stay today and unlock exclusive direct booking benefits.</p>
+  </div>
+  <a href="#booking-bar" class="btn-white">Book Your Stay</a>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-info reveal">
+    <p class="section-label">Get In Touch</p>
+    <h2 class="section-title">We'd Love to <em>Hear</em> From You</h2>
+    <div class="divider"></div>
+    <p class="section-body">Whether you're planning a stay, a private event, or simply want to learn more — our team is here to help create the perfect experience for you.</p>
+    <div class="contact-details">
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <h4>Address</h4>
+          <p>123 Pearl Boulevard, Brooklyn<br>New York, NY 11201</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.09-1.09a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <div>
+          <h4>Phone</h4>
+          <p>+1 (800) BROOKLYN<br>+1 (718) 555 0192</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <h4>Email</h4>
+          <p>info@brooklynpearlresort.com<br>reservations@brooklynpearlresort.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="reveal">
+    <p class="section-label">Send a Message</p>
+    <h3 style="font-size:1.3rem; font-weight:300; color:var(--dark); margin-bottom:1.5rem;">Make an <em style="color:var(--gold); font-style:italic;">Enquiry</em></h3>
+    <div class="contact-form" id="contactForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="cf-first-name" placeholder="John"/>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="cf-last-name" placeholder="Doe"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="cf-email" placeholder="john@example.com"/>
+      </div>
+      <div class="form-group">
+        <label>Enquiry Type</label>
+        <select id="cf-enquiry-type">
+          <option value="room_reservation">Room Reservation</option>
+          <option value="dining_reservation">Dining Reservation</option>
+          <option value="event_wedding">Event / Wedding</option>
+          <option value="general">General Enquiry</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="cf-message" placeholder="Tell us how we can help…"></textarea>
+      </div>
+      <button class="btn-submit" id="contactSubmitBtn" type="button">Send Message</button>
+      <p id="contactResult" style="margin-top:0.9rem; font-size:0.78rem;"></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="margin-bottom:0.5rem; display:inline-flex;">
+        <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:38px;height:38px;">
+          <circle cx="21" cy="21" r="20" stroke="#a47f50" stroke-width="1.2"/>
+          <path d="M21 10 C16 14 10 18 13 23 C16 28 22 24 21 18 C20 24 26 30 30 25 C34 20 27 15 21 10Z" fill="#a47f50" opacity="0.85"/>
+          <path d="M14 22 C10 24 8 28 11 29 C14 30 16 26 14 22Z" fill="#a47f50" opacity="0.6"/>
+        </svg>
+        <div class="nav-logo-text" style="margin-left:0.7rem;">
+          <div class="brand" style="font-size:1.1rem;">Brooklyn Pearl</div>
+          <div class="sub">Resort</div>
+        </div>
+      </a>
+      <p class="footer-tagline">A harmonious blend of urban energy and serene luxury. Where every stay becomes an unforgettable story.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Twitter">
+          <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#rooms">Rooms & Suites</a></li>
+        <li><a href="#dining">Dining</a></li>
+        <li><a href="#experience">Amenities</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Spa & Wellness</a></li>
+        <li><a href="#">Weddings</a></li>
+        <li><a href="#">Conferences</a></li>
+        <li><a href="#">Airport Transfer</a></li>
+        <li><a href="#">Concierge</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Cancellation Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Brooklyn Pearl Resort. All rights reserved.</p>
+    <p>Designed with care for unforgettable experiences.</p>
+  </div>
+</footer>
