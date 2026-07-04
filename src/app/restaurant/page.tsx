@@ -11,6 +11,7 @@ import {
   closeButtonStyle,
   eyebrowStyle,
 } from "@/components/shared-ui";
+import FeaturedEventPopup from "@/components/FeaturedEventPopup";
 
 interface MenuItem {
   id: string;
@@ -229,6 +230,7 @@ function ReservationModal({
           {new Date(option.reservationStart).toLocaleString("en-KE", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
           {" · "}{partySize} guests · No payment required online
         </p>
+        <FeaturedEventPopup />
         <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
           <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
           <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />

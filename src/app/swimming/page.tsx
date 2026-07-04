@@ -11,6 +11,7 @@ import {
   closeButtonStyle,
   eyebrowStyle,
 } from "@/components/shared-ui";
+import FeaturedEventPopup from "@/components/FeaturedEventPopup";
 
 interface SwimmingOption {
   sessionId: string;
@@ -167,6 +168,7 @@ function SwimmingBookingModal({
         <p style={{ fontSize: "0.78rem", color: "#999", marginBottom: "1.4rem" }}>
           {partySize} {partySize > 1 ? "people" : "person"} · KES {option.totalKes.toLocaleString()} total
         </p>
+        <FeaturedEventPopup />
         <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
           <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
           <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />

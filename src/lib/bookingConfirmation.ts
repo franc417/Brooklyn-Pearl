@@ -84,5 +84,32 @@ export async function confirmBookingSource(
     };
   }
 
+  if (sourceTable === "event_bookings") {
+    const { data: eventBooking } = await supabase
+      .from("event_bookings")
+      .update({ status: "confirmed" })
+      .eq("id", sourceId)
+      .eq("status", "pending_payment")
+      .select("id, guest_first_name, guest_email, quantity, total_amount, currency, event_id")
+      .maybeSingle();
+    if (!eventBooking) return null;
+
+    const { data: event } = await supabase
+      .from("events")
+      .select("name, event_date, start_time")
+      .eq("id", eventBooking.event_id)
+      .maybeSingle();
+
+    return {
+      guestEmail: eventBooking.guest_email,
+      guestFirstName: eventBooking.guest_first_name,
+      serviceName: `${event?.name ?? "Event"} (${eventBooking.quantity} ticket${eventBooking.quantity > 1 ? "s" : ""})`,
+      dateLabel: event ? `${event.event_date}${event.start_time ? `, ${event.start_time}` : ""}` : "",
+      totalAmount: eventBooking.total_amount,
+      currency: eventBooking.currency,
+      sourceId: eventBooking.id,
+    };
+  }
+
   return null;
 }

@@ -75,3 +75,16 @@ export const createRestaurantReservationSchema = z.object({
 });
 
 export type CreateRestaurantReservationInput = z.infer<typeof createRestaurantReservationSchema>;
+
+// ─── Events ──────────────────────────────────────────────────────────────
+
+export const createEventBookingSchema = z.object({
+  eventId: z.string().uuid(),
+  quantity: z.coerce.number().int().min(1).max(50).default(1),
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  email: z.string().trim().email(),
+  phone: z.string().trim().min(7).max(20),
+});
+
+export type CreateEventBookingInput = z.infer<typeof createEventBookingSchema>;
