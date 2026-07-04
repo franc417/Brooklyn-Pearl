@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       status: "pending_payment",
       total_amount: totalAmount,
       currency: "KES",
+      claimed_offer_id: input.claimedOfferId ?? null,
     })
     .select()
     .single();

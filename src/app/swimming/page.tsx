@@ -12,6 +12,7 @@ import {
   eyebrowStyle,
 } from "@/components/shared-ui";
 import FeaturedEventPopup from "@/components/FeaturedEventPopup";
+import OfferEligibilityBanner from "@/components/OfferEligibilityBanner";
 
 interface SwimmingOption {
   sessionId: string;
@@ -108,7 +109,7 @@ export default function SwimmingPage() {
       </section>
 
       {modalOption && (
-        <SwimmingBookingModal option={modalOption} partySize={partySize} onClose={() => setModalOption(null)} />
+        <SwimmingBookingModal option={modalOption} partySize={partySize} date={date} onClose={() => setModalOption(null)} />
       )}
     </main>
   );
@@ -117,10 +118,12 @@ export default function SwimmingPage() {
 function SwimmingBookingModal({
   option,
   partySize,
+  date,
   onClose,
 }: {
   option: SwimmingOption;
   partySize: number;
+  date: string;
   onClose: () => void;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -129,6 +132,7 @@ function SwimmingBookingModal({
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [claimedOfferId, setClaimedOfferId] = useState<string | null>(null);
 
   async function handleSubmit() {
     if (!firstName || !lastName || !email || !phone) {
@@ -142,7 +146,7 @@ function SwimmingBookingModal({
       const res = await fetch("/api/swimming/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: option.sessionId, partySize, firstName, lastName, email, phone }),
+        body: JSON.stringify({ sessionId: option.sessionId, partySize, firstName, lastName, email, phone, claimedOfferId: claimedOfferId ?? undefined }),
       });
       const data = await res.json();
       if (res.ok && data.redirectUrl) {
@@ -169,6 +173,13 @@ function SwimmingBookingModal({
           {partySize} {partySize > 1 ? "people" : "person"} · KES {option.totalKes.toLocaleString()} total
         </p>
         <FeaturedEventPopup />
+        <OfferEligibilityBanner
+          partySize={partySize}
+          date={date}
+          serviceCategory="swimming"
+          claimedOfferId={claimedOfferId}
+          onClaim={setClaimedOfferId}
+        />
         <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
           <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
           <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />

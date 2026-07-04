@@ -60,6 +60,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: reservationError.message }, { status: 500 });
   }
 
+  if (input.claimedOfferId) {
+    await supabase.from("offer_redemptions").insert({
+      offer_id: input.claimedOfferId,
+      applied_to_table: "restaurant_reservations",
+      applied_to_id: reservation.id,
+    });
+  }
+
   const startDate = new Date(reservation.reservation_start);
   const dateLabel = startDate.toLocaleString("en-KE", {
     weekday: "short",

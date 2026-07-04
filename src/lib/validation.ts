@@ -49,6 +49,7 @@ export const createSwimmingBookingSchema = z.object({
   lastName: z.string().trim().min(1).max(80),
   email: z.string().trim().email(),
   phone: z.string().trim().min(7).max(20),
+  claimedOfferId: z.string().uuid().optional(),
 });
 
 export type CreateSwimmingBookingInput = z.infer<typeof createSwimmingBookingSchema>;
@@ -72,6 +73,7 @@ export const createRestaurantReservationSchema = z.object({
   email: z.string().trim().email(),
   phone: z.string().trim().min(7).max(20),
   specialRequests: z.string().trim().max(1000).optional(),
+  claimedOfferId: z.string().uuid().optional(),
 });
 
 export type CreateRestaurantReservationInput = z.infer<typeof createRestaurantReservationSchema>;

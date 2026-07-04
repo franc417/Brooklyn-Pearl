@@ -12,6 +12,7 @@ import {
   eyebrowStyle,
 } from "@/components/shared-ui";
 import FeaturedEventPopup from "@/components/FeaturedEventPopup";
+import OfferEligibilityBanner from "@/components/OfferEligibilityBanner";
 
 interface MenuItem {
   id: string;
@@ -150,6 +151,7 @@ export default function RestaurantPage() {
         <ReservationModal
           option={modalOption}
           partySize={partySize}
+          date={date}
           onClose={() => setModalOption(null)}
           onReserved={(msg) => {
             setModalOption(null);
@@ -165,11 +167,13 @@ export default function RestaurantPage() {
 function ReservationModal({
   option,
   partySize,
+  date,
   onClose,
   onReserved,
 }: {
   option: TableOption;
   partySize: number;
+  date: string;
   onClose: () => void;
   onReserved: (message: string) => void;
 }) {
@@ -180,6 +184,7 @@ function ReservationModal({
   const [specialRequests, setSpecialRequests] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [claimedOfferId, setClaimedOfferId] = useState<string | null>(null);
 
   async function handleSubmit() {
     if (!firstName || !lastName || !email || !phone) {
@@ -203,6 +208,7 @@ function ReservationModal({
           email,
           phone,
           specialRequests: specialRequests || undefined,
+          claimedOfferId: claimedOfferId ?? undefined,
         }),
       });
       const data = await res.json();
@@ -231,6 +237,13 @@ function ReservationModal({
           {" · "}{partySize} guests · No payment required online
         </p>
         <FeaturedEventPopup />
+        <OfferEligibilityBanner
+          partySize={partySize}
+          date={date}
+          serviceCategory="restaurant"
+          claimedOfferId={claimedOfferId}
+          onClaim={setClaimedOfferId}
+        />
         <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
           <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
           <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
