@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { getTransactionStatus } from "@/lib/pesapal";
+import { confirmBookingSource } from "@/lib/bookingConfirmation";
 import Link from "next/link";
 
 // Guests land here after paying on Pesapal's hosted page (this is the
@@ -12,11 +13,11 @@ import Link from "next/link";
 export default async function BookingConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ OrderTrackingId?: string; OrderMerchantReference?: string }>;
+  searchParams: Promise<{ OrderTrackingId?: string }>;
 }) {
-  const { OrderTrackingId, OrderMerchantReference } = await searchParams;
+  const { OrderTrackingId } = await searchParams;
 
-  if (!OrderTrackingId || !OrderMerchantReference) {
+  if (!OrderTrackingId) {
     return (
       <ConfirmationShell
         heading="Something's missing"
@@ -26,13 +27,13 @@ export default async function BookingConfirmationPage({
   }
 
   const supabase = createServiceRoleClient();
-  const { data: booking } = await supabase
-    .from("bookings")
-    .select("id, status, guest_first_name, check_in, check_out, total_amount, currency, room_type_id")
-    .eq("id", OrderMerchantReference)
+  const { data: payment } = await supabase
+    .from("payments")
+    .select("id, source_table, source_id, status")
+    .eq("provider_reference", OrderTrackingId)
     .maybeSingle();
 
-  if (!booking) {
+  if (!payment) {
     return (
       <ConfirmationShell
         heading="Booking not found"
@@ -43,39 +44,44 @@ export default async function BookingConfirmationPage({
 
   // If the IPN webhook hasn't confirmed yet, check live rather than make the
   // guest wait or refresh manually.
-  if (booking.status === "pending_payment") {
+  if (payment.status === "pending") {
     try {
       const status = await getTransactionStatus(OrderTrackingId);
       if (status.payment_status_description === "Completed") {
-        await supabase.from("bookings").update({ status: "confirmed" }).eq("id", booking.id);
-        booking.status = "confirmed";
+        await supabase.from("payments").update({ status: "completed" }).eq("id", payment.id);
+        payment.status = "completed";
       }
     } catch {
       // fall through to pending state below
     }
   }
 
-  const { data: roomType } = await supabase
-    .from("room_types")
-    .select("name")
-    .eq("id", booking.room_type_id)
-    .maybeSingle();
-
-  if (booking.status === "confirmed") {
+  if (payment.status === "completed") {
+    const confirmation = await confirmBookingSource(supabase, payment.source_table, payment.source_id);
+    if (confirmation) {
+      return (
+        <ConfirmationShell
+          heading={`You're all set, ${confirmation.guestFirstName}.`}
+          body={`${confirmation.serviceName} · ${confirmation.dateLabel} · ${confirmation.currency} ${confirmation.totalAmount.toLocaleString()} paid. A confirmation email is on its way.`}
+          confirmationCode={confirmation.sourceId.slice(0, 8).toUpperCase()}
+        />
+      );
+    }
+    // confirmBookingSource returns null if it was already confirmed by an
+    // earlier IPN ping — that's success too, just nothing left to transition.
     return (
       <ConfirmationShell
-        heading={`You're all set, ${booking.guest_first_name}.`}
-        body={`${roomType?.name ?? "Your room"} · ${booking.check_in} → ${booking.check_out} · ${booking.currency} ${booking.total_amount.toLocaleString()} paid. A confirmation email is on its way.`}
-        confirmationCode={booking.id.slice(0, 8).toUpperCase()}
+        heading="You're all set."
+        body="Your payment was confirmed. Check your email for the full confirmation."
       />
     );
   }
 
-  if (booking.status === "cancelled") {
+  if (payment.status === "failed") {
     return (
       <ConfirmationShell
         heading="Payment didn't go through"
-        body="Your room wasn't held for this attempt. Please try booking again, or contact us and we'll help directly."
+        body="Your booking wasn't held for this attempt. Please try again, or contact us and we'll help directly."
       />
     );
   }

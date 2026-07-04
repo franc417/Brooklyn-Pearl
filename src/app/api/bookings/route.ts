@@ -110,7 +110,8 @@ export async function POST(request: NextRequest) {
     });
 
     await supabase.from("payments").insert({
-      booking_id: booking.id,
+      source_table: "bookings",
+      source_id: booking.id,
       provider: "pesapal_card",
       provider_reference: order.order_tracking_id,
       amount: totalAmount,
