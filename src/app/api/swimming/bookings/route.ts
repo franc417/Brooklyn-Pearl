@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient, createServerSupabaseClient } from "@/lib/supabase/server";
 import { createSwimmingBookingSchema } from "@/lib/validation";
 import { submitOrder } from "@/lib/pesapal";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -12,9 +13,14 @@ export async function POST(request: NextRequest) {
   const input = parsed.data;
   const supabase = createServiceRoleClient();
 
+  const sessionClient = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await sessionClient.auth.getUser();
+
   const { data: session, error: sessionError } = await supabase
     .from("swimming_sessions")
-    .select("id, capacity, price_kes")
+    .select("id, session_date, start_time, end_time, capacity, price_kes")
     .eq("id", input.sessionId)
     .eq("is_published", true)
     .maybeSingle();
@@ -41,6 +47,15 @@ export async function POST(request: NextRequest) {
 
   const totalAmount = session.price_kes * input.partySize;
 
+  let useLoyaltyReward = false;
+  if (user) {
+    const { data: eligible } = await supabase.rpc("guest_has_free_reward", {
+      p_guest_id: user.id,
+      p_service_category: "swimming",
+    });
+    useLoyaltyReward = eligible === true;
+  }
+
   // The check_swimming_capacity trigger (schema.sql migration 002) is the
   // real safety net against a race between this check and the insert below —
   // it locks the session row and re-verifies atomically, same guarantee
@@ -49,16 +64,18 @@ export async function POST(request: NextRequest) {
   const { data: booking, error: bookingError } = await supabase
     .from("swimming_bookings")
     .insert({
+      guest_id: user?.id ?? null,
       session_id: session.id,
       guest_first_name: input.firstName,
       guest_last_name: input.lastName,
       guest_email: input.email,
       guest_phone: input.phone,
       party_size: input.partySize,
-      status: "pending_payment",
-      total_amount: totalAmount,
+      status: useLoyaltyReward ? "confirmed" : "pending_payment",
+      total_amount: useLoyaltyReward ? 0 : totalAmount,
       currency: "KES",
       claimed_offer_id: input.claimedOfferId ?? null,
+      is_loyalty_reward: useLoyaltyReward,
     })
     .select()
     .single();
@@ -71,6 +88,28 @@ export async function POST(request: NextRequest) {
       );
     }
     return NextResponse.json({ error: bookingError.message }, { status: 500 });
+  }
+
+  if (useLoyaltyReward) {
+    if (input.claimedOfferId) {
+      await supabase.from("offer_redemptions").insert({
+        offer_id: input.claimedOfferId,
+        applied_to_table: "swimming_bookings",
+        applied_to_id: booking.id,
+      });
+    }
+
+    sendBookingConfirmationEmail({
+      to: input.email,
+      guestName: input.firstName,
+      serviceName: "Swimming session (loyalty reward)",
+      dateLabel: `${session.session_date}, ${session.start_time}–${session.end_time}`,
+      totalAmount: 0,
+      currency: "KES",
+      bookingId: booking.id,
+    }).catch((err) => console.error("Failed to send loyalty-reward confirmation email:", err));
+
+    return NextResponse.json({ bookingId: booking.id, status: "confirmed", loyaltyReward: true });
   }
 
   try {

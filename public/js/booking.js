@@ -202,6 +202,14 @@
         .then(function (result) {
           if (result.ok && result.data.redirectUrl) {
             window.location.href = result.data.redirectUrl;
+          } else if (result.ok && result.data.loyaltyReward) {
+            modal.innerHTML =
+              '<button id="bpr-modal-close" type="button" aria-label="Close" style="position:absolute;top:0.8rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted);">&times;</button>' +
+              '<p style="font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;">Loyalty Reward Applied</p>' +
+              '<h3 style="font-weight:300;font-size:1.3rem;color:var(--dark);margin-bottom:0.8rem;">Your free stay is booked \ud83c\udf89</h3>' +
+              '<p style="font-size:0.85rem;color:#666;">A confirmation has been sent to your email.</p>';
+            var newCloseBtn = modal.querySelector("#bpr-modal-close");
+            if (newCloseBtn) newCloseBtn.addEventListener("click", function () { overlay.remove(); });
           } else {
             errorEl.textContent = result.data.error || "Something went wrong. Please try again.";
             submitBtn.disabled = false;

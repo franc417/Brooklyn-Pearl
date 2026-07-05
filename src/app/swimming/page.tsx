@@ -133,6 +133,7 @@ function SwimmingBookingModal({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [claimedOfferId, setClaimedOfferId] = useState<string | null>(null);
+  const [rewardSuccess, setRewardSuccess] = useState(false);
 
   async function handleSubmit() {
     if (!firstName || !lastName || !email || !phone) {
@@ -151,6 +152,8 @@ function SwimmingBookingModal({
       const data = await res.json();
       if (res.ok && data.redirectUrl) {
         window.location.href = data.redirectUrl;
+      } else if (res.ok && data.loyaltyReward) {
+        setRewardSuccess(true);
       } else {
         setError(data.error || "Something went wrong. Please try again.");
         setSubmitting(false);
@@ -165,31 +168,45 @@ function SwimmingBookingModal({
     <div style={overlayStyle} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div style={modalStyle}>
         <button onClick={onClose} style={closeButtonStyle} aria-label="Close">&times;</button>
-        <p style={eyebrowStyle}>Confirm Your Booking</p>
-        <h3 style={{ fontWeight: 300, fontSize: "1.3rem", color: "#292f1a", marginBottom: "0.3rem" }}>
-          Swimming — {option.startTime}–{option.endTime}
-        </h3>
-        <p style={{ fontSize: "0.78rem", color: "#999", marginBottom: "1.4rem" }}>
-          {partySize} {partySize > 1 ? "people" : "person"} · KES {option.totalKes.toLocaleString()} total
-        </p>
-        <FeaturedEventPopup />
-        <OfferEligibilityBanner
-          partySize={partySize}
-          date={date}
-          serviceCategory="swimming"
-          claimedOfferId={claimedOfferId}
-          onClaim={setClaimedOfferId}
-        />
-        <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
-          <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-          <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-        </div>
-        <input placeholder="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "0.9rem" }} />
-        <input placeholder="Phone (e.g. 2547XXXXXXXX)" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "1.2rem" }} />
-        <button onClick={handleSubmit} disabled={submitting} style={{ ...buttonStyle, width: "100%" }}>
-          {submitting ? "Please wait…" : "Continue to Payment"}
-        </button>
-        {error && <p style={{ color: "#b33", fontSize: "0.75rem", marginTop: "0.7rem" }}>{error}</p>}
+        {rewardSuccess ? (
+          <>
+            <p style={eyebrowStyle}>Loyalty Reward Applied</p>
+            <h3 style={{ fontWeight: 300, fontSize: "1.3rem", color: "#292f1a", marginBottom: "0.8rem" }}>
+              Your free session is booked 🎉
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "#666" }}>
+              Swimming — {option.startTime}–{option.endTime}. A confirmation has been sent to {email}.
+            </p>
+          </>
+        ) : (
+          <>
+            <p style={eyebrowStyle}>Confirm Your Booking</p>
+            <h3 style={{ fontWeight: 300, fontSize: "1.3rem", color: "#292f1a", marginBottom: "0.3rem" }}>
+              Swimming — {option.startTime}–{option.endTime}
+            </h3>
+            <p style={{ fontSize: "0.78rem", color: "#999", marginBottom: "1.4rem" }}>
+              {partySize} {partySize > 1 ? "people" : "person"} · KES {option.totalKes.toLocaleString()} total
+            </p>
+            <FeaturedEventPopup />
+            <OfferEligibilityBanner
+              partySize={partySize}
+              date={date}
+              serviceCategory="swimming"
+              claimedOfferId={claimedOfferId}
+              onClaim={setClaimedOfferId}
+            />
+            <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
+              <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
+              <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
+            </div>
+            <input placeholder="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "0.9rem" }} />
+            <input placeholder="Phone (e.g. 2547XXXXXXXX)" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "1.2rem" }} />
+            <button onClick={handleSubmit} disabled={submitting} style={{ ...buttonStyle, width: "100%" }}>
+              {submitting ? "Please wait…" : "Continue to Payment"}
+            </button>
+            {error && <p style={{ color: "#b33", fontSize: "0.75rem", marginTop: "0.7rem" }}>{error}</p>}
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceRoleClient } from "@/lib/supabase/server";
+import { createServiceRoleClient, createServerSupabaseClient } from "@/lib/supabase/server";
 import { createBookingSchema } from "@/lib/validation";
 import { submitOrder } from "@/lib/pesapal";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -12,10 +13,19 @@ export async function POST(request: NextRequest) {
   const input = parsed.data;
   const supabase = createServiceRoleClient();
 
+  // Logged-in guests get their booking attributed to their account (needed
+  // for loyalty tracking) and get checked for an already-earned free stay.
+  // Anonymous guest checkout still works exactly as before -- loyalty is
+  // the only thing that requires an account, per the Phase 1 decision.
+  const sessionClient = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await sessionClient.auth.getUser();
+
   // 1. Confirm the room type exists and load its price
   const { data: roomType, error: roomTypeError } = await supabase
     .from("room_types")
-    .select("id, name, base_price_kes, capacity")
+    .select("id, name, base_price_kes, capacity, category")
     .eq("id", input.roomTypeId)
     .eq("is_published", true)
     .maybeSingle();
@@ -61,6 +71,19 @@ export async function POST(request: NextRequest) {
   );
   const totalAmount = roomType.base_price_kes * nights;
 
+  // Check for an already-earned free stay in this exact category. Only
+  // matters for logged-in guests -- guest_has_free_reward always returns
+  // false for a null guest_id anyway, but skipping the RPC call entirely
+  // when there's no user is simpler to read.
+  let useLoyaltyReward = false;
+  if (user) {
+    const { data: eligible } = await supabase.rpc("guest_has_free_reward", {
+      p_guest_id: user.id,
+      p_service_category: roomType.category,
+    });
+    useLoyaltyReward = eligible === true;
+  }
+
   // 3. Create the booking. If two guests race for the same room, the
   // no_overlapping_bookings exclusion constraint in schema.sql makes the
   // database itself reject the losing insert — belt and suspenders on top
@@ -68,6 +91,7 @@ export async function POST(request: NextRequest) {
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .insert({
+      guest_id: user?.id ?? null,
       room_type_id: roomType.id,
       room_unit_id: availableUnitId,
       check_in: input.checkIn,
@@ -78,9 +102,10 @@ export async function POST(request: NextRequest) {
       guest_email: input.email,
       guest_phone: input.phone,
       special_requests: input.specialRequests ?? null,
-      status: "pending_payment",
-      total_amount: totalAmount,
+      status: useLoyaltyReward ? "confirmed" : "pending_payment",
+      total_amount: useLoyaltyReward ? 0 : totalAmount,
       currency: "KES",
+      is_loyalty_reward: useLoyaltyReward,
     })
     .select()
     .single();
@@ -93,6 +118,23 @@ export async function POST(request: NextRequest) {
       );
     }
     return NextResponse.json({ error: bookingError.message }, { status: 500 });
+  }
+
+  // Free reward: skip Pesapal entirely, confirm and email immediately.
+  // The is_loyalty_reward flag on the row above is what stops the Phase 6
+  // trigger from also crediting this toward the *next* free stay.
+  if (useLoyaltyReward) {
+    sendBookingConfirmationEmail({
+      to: input.email,
+      guestName: input.firstName,
+      serviceName: `${roomType.name} (loyalty reward)`,
+      dateLabel: `${input.checkIn} → ${input.checkOut}`,
+      totalAmount: 0,
+      currency: "KES",
+      bookingId: booking.id,
+    }).catch((err) => console.error("Failed to send loyalty-reward confirmation email:", err));
+
+    return NextResponse.json({ bookingId: booking.id, status: "confirmed", loyaltyReward: true });
   }
 
   // 4. Kick off payment with Pesapal — the guest is redirected to a hosted
