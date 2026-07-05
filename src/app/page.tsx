@@ -37,12 +37,14 @@ export default async function HomePage() {
     .order("event_date", { ascending: true })
     .limit(5);
 
+  const hasTicker = (featuredEvents ?? []).length > 0;
+
   return (
-    <>
+    <div className={hasTicker ? "has-ticker" : undefined}>
       <EventsTicker events={featuredEvents ?? []} />
       <div dangerouslySetInnerHTML={{ __html: html }} />
       <Script src="/js/site-legacy.js" strategy="afterInteractive" />
       <Script src="/js/booking.js" strategy="afterInteractive" />
-    </>
+    </div>
   );
 }

@@ -753,3 +753,16 @@
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
       #booking-bar { padding: 1.4rem 1.5rem; }
     }
+
+/* Added in Phase 4/7 for the events ticker (see EventsTicker.tsx). The
+   original nav above is untouched — this is a new, additive rule that only
+   applies when the ticker is actually present (see the has-ticker wrapper
+   class in page.tsx), pushing the fixed nav down by the ticker's height so
+   the two don't overlap. Height is a reasoned estimate from the ticker's
+   own padding/font-size, not visually verified in a real browser — please
+   confirm the offset looks right once you can view the live site, and flag
+   it if it needs a few pixels of adjustment either way. */
+.has-ticker nav { top: 38px; }
+@media (max-width: 900px) {
+  .has-ticker nav { top: 34px; }
+}

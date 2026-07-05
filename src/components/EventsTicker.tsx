@@ -33,7 +33,7 @@ export default function EventsTicker({ events }: { events: TickerEvent[] }) {
         fontFamily: "'Montserrat', sans-serif",
         fontSize: "0.78rem",
         position: "relative",
-        zIndex: 100,
+        zIndex: 1001,
       }}
     >
       <Link href={`/events/${current.slug}`} style={{ color: "#fff", textDecoration: "none" }}>
