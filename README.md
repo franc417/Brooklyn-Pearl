@@ -48,6 +48,15 @@ npm run dev
    values ('paste-the-uuid-here', 'Your Name', 'admin');
    ```
    You can now sign in at `/admin/login`.
+6. **Generate real TypeScript types** once the project is live — this
+   couldn't be done in the build sandbox (it needs a container runtime and
+   network access to `public.ecr.aws` that weren't available there), but
+   works normally once you have real project credentials:
+   ```bash
+   npx supabase gen types typescript --project-id your-project-ref > src/types/database.ts
+   ```
+   Worth doing early — right now a typo'd column name in a query wouldn't
+   be caught by the build.
 
 ## 3. Pesapal setup
 
