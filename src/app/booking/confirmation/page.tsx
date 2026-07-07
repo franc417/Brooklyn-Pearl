@@ -48,7 +48,10 @@ export default async function BookingConfirmationPage({
     try {
       const status = await getTransactionStatus(OrderTrackingId);
       if (status.payment_status_description === "Completed") {
-        await supabase.from("payments").update({ status: "completed" }).eq("id", payment.id);
+        await supabase
+          .from("payments")
+          .update({ status: "completed", confirmation_code: status.confirmation_code })
+          .eq("id", payment.id);
         payment.status = "completed";
       }
     } catch {

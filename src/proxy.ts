@@ -1,13 +1,15 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Every request under /admin (except the login page itself) is checked here,
-// before it ever reaches a page component. This is deliberate: a page-level
-// check can be forgotten when someone adds a new admin page later; proxy.ts
-// can't be, because it runs for every path under the matcher below.
+// Every request under /admin AND /api/admin (except the login page itself)
+// is checked here, before it ever reaches a page or route handler. This is
+// deliberate: a page-level or route-level check can be forgotten when
+// someone adds a new admin page/endpoint later; proxy.ts can't be, because
+// it runs for every path under the matcher below.
 // (Next.js 16 renamed "middleware.ts" to "proxy.ts" — same mechanism, new name.)
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,6 +36,9 @@ export async function proxy(request: NextRequest) {
   const isLoginPage = request.nextUrl.pathname === "/admin/login";
 
   if (!user && !isLoginPage) {
+    if (isApiRoute) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
     const loginUrl = new URL("/admin/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
@@ -48,6 +53,9 @@ export async function proxy(request: NextRequest) {
       .maybeSingle();
 
     if (!staffProfile || !staffProfile.is_active) {
+      if (isApiRoute) {
+        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+      }
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("error", "not_authorized");
       return NextResponse.redirect(loginUrl);
@@ -58,5 +66,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

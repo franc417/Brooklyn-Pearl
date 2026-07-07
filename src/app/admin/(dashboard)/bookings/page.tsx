@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import CancelRefundButton from "./cancel-refund-button";
 
 const STATUS_COLORS: Record<string, string> = {
   confirmed: "#2f6b3a",
@@ -12,7 +13,7 @@ export default async function AdminBookingsPage() {
   const supabase = await createServerSupabaseClient();
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("id, guest_first_name, guest_last_name, guest_email, check_in, check_out, status, total_amount, currency, room_types(name)")
+    .select("id, guest_first_name, guest_last_name, guest_email, check_in, check_out, status, total_amount, currency, is_loyalty_reward, room_types(name)")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -21,6 +22,9 @@ export default async function AdminBookingsPage() {
       <h1 style={{ fontWeight: 300, fontSize: "1.6rem", color: "#292f1a", marginBottom: "1.8rem" }}>
         Bookings
       </h1>
+      <p style={{ fontSize: "0.78rem", color: "#999", marginBottom: "1.2rem" }}>
+        Hotel &amp; BnB only for now — Swimming and Event bookings aren&apos;t shown in this dashboard yet.
+      </p>
       <div style={{ background: "#fff", border: "1px solid #eee" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
           <thead>
@@ -31,6 +35,7 @@ export default async function AdminBookingsPage() {
               <th style={cellStyle}>Check-out</th>
               <th style={cellStyle}>Amount</th>
               <th style={cellStyle}>Status</th>
+              <th style={cellStyle}></th>
             </tr>
           </thead>
           <tbody>
@@ -44,17 +49,26 @@ export default async function AdminBookingsPage() {
                 <td style={cellStyle}>{(b.room_types as unknown as { name: string } | null)?.name ?? "—"}</td>
                 <td style={cellStyle}>{b.check_in}</td>
                 <td style={cellStyle}>{b.check_out}</td>
-                <td style={cellStyle}>{b.currency} {b.total_amount.toLocaleString()}</td>
+                <td style={cellStyle}>
+                  {b.currency} {b.total_amount.toLocaleString()}
+                  {b.is_loyalty_reward && <span style={{ color: "#a47f50", fontSize: "0.68rem" }}> (loyalty)</span>}
+                </td>
                 <td style={cellStyle}>
                   <span style={{ color: STATUS_COLORS[b.status] ?? "#333", fontWeight: 600 }}>
                     {b.status.replace("_", " ")}
                   </span>
                 </td>
+                <td style={cellStyle}>
+                  {/* Loyalty rewards were never actually charged — nothing to refund via Pesapal */}
+                  {b.status === "confirmed" && !b.is_loyalty_reward && (
+                    <CancelRefundButton bookingId={b.id} amount={b.total_amount} currency={b.currency} />
+                  )}
+                </td>
               </tr>
             ))}
             {(!bookings || bookings.length === 0) && (
               <tr>
-                <td style={cellStyle} colSpan={6}>No bookings yet.</td>
+                <td style={cellStyle} colSpan={7}>No bookings yet.</td>
               </tr>
             )}
           </tbody>

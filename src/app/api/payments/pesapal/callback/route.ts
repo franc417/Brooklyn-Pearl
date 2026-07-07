@@ -38,7 +38,11 @@ async function handleIpn(orderTrackingId: string | null) {
 
   await supabase
     .from("payments")
-    .update({ status: newPaymentStatus, raw_response: status })
+    .update({
+      status: newPaymentStatus,
+      raw_response: status,
+      confirmation_code: isPaid ? status.confirmation_code : null,
+    })
     .eq("id", payment.id);
 
   if (isPaid) {

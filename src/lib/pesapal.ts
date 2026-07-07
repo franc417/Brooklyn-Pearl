@@ -156,3 +156,50 @@ export async function getTransactionStatus(
 
   return res.json();
 }
+
+export interface RefundResult {
+  status: string; // "200" on success
+  message: string;
+}
+
+/**
+ * Real limitations enforced by Pesapal itself (not just documented here —
+ * they will reject the request if violated):
+ *   - only payments with status COMPLETED can be refunded
+ *   - can't refund more than was originally collected
+ *   - card payments can be partially refunded; mobile money (M-Pesa) can
+ *     only be refunded IN FULL
+ *   - only ONE refund is allowed per payment, ever — there's no retry if
+ *     the first request used the wrong amount
+ * Identified by confirmation_code, NOT the order_tracking_id used
+ * everywhere else in this file — see payments.confirmation_code, populated
+ * in api/payments/pesapal/callback/route.ts when a payment completes.
+ */
+export async function requestRefund(params: {
+  confirmationCode: string;
+  amount: number;
+  remarks: string;
+  username: string;
+}): Promise<RefundResult> {
+  const token = await getAuthToken();
+  const res = await fetch(`${BASE_URL}/Transactions/RefundRequest`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      confirmation_code: params.confirmationCode,
+      amount: params.amount,
+      username: params.username,
+      remarks: params.remarks,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Pesapal refund request failed: ${res.status} ${await res.text()}`);
+  }
+
+  return res.json();
+}
