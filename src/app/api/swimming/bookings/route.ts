@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient, createServerSupabaseClient } from "@/lib/supabase/server";
 import { createSwimmingBookingSchema } from "@/lib/validation";
 import { submitOrder } from "@/lib/pesapal";
+import { initiateStkPush } from "@/lib/mpesa";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
@@ -110,6 +111,42 @@ export async function POST(request: NextRequest) {
     }).catch((err) => console.error("Failed to send loyalty-reward confirmation email:", err));
 
     return NextResponse.json({ bookingId: booking.id, status: "confirmed", loyaltyReward: true });
+  }
+
+  if (input.paymentMethod === "mpesa") {
+    try {
+      const stk = await initiateStkPush({
+        phone: input.phone,
+        amount: totalAmount,
+        accountReference: `SWIM-${booking.id.slice(0, 8)}`,
+        description: "Swimming session",
+      });
+
+      await supabase.from("payments").insert({
+        source_table: "swimming_bookings",
+        source_id: booking.id,
+        provider: "mpesa",
+        provider_reference: stk.CheckoutRequestID,
+        amount: totalAmount,
+        currency: "KES",
+        status: "pending",
+        raw_response: stk,
+      });
+
+      // No redirect for M-Pesa — the guest gets a prompt on their own
+      // phone. The client polls /api/payments/mpesa/status with this ID
+      // until the callback route (fired by Safaricom) marks it complete.
+      return NextResponse.json({ bookingId: booking.id, mpesaPending: true, checkoutRequestId: stk.CheckoutRequestID });
+    } catch (err) {
+      return NextResponse.json(
+        {
+          bookingId: booking.id,
+          error: "Your spot is held, but we couldn't send the M-Pesa prompt. Please try again or contact us directly.",
+          detail: err instanceof Error ? err.message : String(err),
+        },
+        { status: 502 }
+      );
+    }
   }
 
   try {

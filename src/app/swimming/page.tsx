@@ -134,6 +134,39 @@ function SwimmingBookingModal({
   const [submitting, setSubmitting] = useState(false);
   const [claimedOfferId, setClaimedOfferId] = useState<string | null>(null);
   const [rewardSuccess, setRewardSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "mpesa">("card");
+  const [waitingForMpesa, setWaitingForMpesa] = useState(false);
+  const [mpesaSuccess, setMpesaSuccess] = useState(false);
+
+  async function pollMpesaStatus(checkoutRequestId: string) {
+    // Guest has ~60 seconds to enter their PIN, plus a few more for
+    // Safaricom's callback to reach us — 90 seconds of polling covers
+    // this comfortably without polling forever if something goes wrong.
+    const maxAttempts = 30;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      try {
+        const res = await fetch(`/api/payments/mpesa/status?checkoutRequestId=${checkoutRequestId}`);
+        const data = await res.json();
+        if (data.status === "completed") {
+          setWaitingForMpesa(false);
+          setMpesaSuccess(true);
+          return;
+        }
+        if (data.status === "failed") {
+          setWaitingForMpesa(false);
+          setError("Payment wasn't completed on M-Pesa — it may have been cancelled or timed out. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+      } catch {
+        // transient network hiccup while polling — just try again next tick
+      }
+    }
+    setWaitingForMpesa(false);
+    setError("Still waiting on M-Pesa confirmation. Check your phone, or try again if no prompt arrived.");
+    setSubmitting(false);
+  }
 
   async function handleSubmit() {
     if (!firstName || !lastName || !email || !phone) {
@@ -147,11 +180,14 @@ function SwimmingBookingModal({
       const res = await fetch("/api/swimming/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: option.sessionId, partySize, firstName, lastName, email, phone, claimedOfferId: claimedOfferId ?? undefined }),
+        body: JSON.stringify({ sessionId: option.sessionId, partySize, firstName, lastName, email, phone, claimedOfferId: claimedOfferId ?? undefined, paymentMethod }),
       });
       const data = await res.json();
       if (res.ok && data.redirectUrl) {
         window.location.href = data.redirectUrl;
+      } else if (res.ok && data.mpesaPending) {
+        setWaitingForMpesa(true);
+        pollMpesaStatus(data.checkoutRequestId);
       } else if (res.ok && data.loyaltyReward) {
         setRewardSuccess(true);
       } else {
@@ -178,6 +214,27 @@ function SwimmingBookingModal({
               Swimming — {option.startTime}–{option.endTime}. A confirmation has been sent to {email}.
             </p>
           </>
+        ) : mpesaSuccess ? (
+          <>
+            <p style={eyebrowStyle}>Payment Received</p>
+            <h3 style={{ fontWeight: 300, fontSize: "1.3rem", color: "#292f1a", marginBottom: "0.8rem" }}>
+              Your session is booked 🎉
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "#666" }}>
+              Swimming — {option.startTime}–{option.endTime}. A confirmation has been sent to {email}.
+            </p>
+          </>
+        ) : waitingForMpesa ? (
+          <>
+            <p style={eyebrowStyle}>Check Your Phone</p>
+            <h3 style={{ fontWeight: 300, fontSize: "1.3rem", color: "#292f1a", marginBottom: "0.8rem" }}>
+              Enter your M-Pesa PIN to complete payment
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "#666" }}>
+              A payment prompt for KES {option.totalKes.toLocaleString()} was sent to {phone}. This page will
+              update automatically once you confirm on your phone.
+            </p>
+          </>
         ) : (
           <>
             <p style={eyebrowStyle}>Confirm Your Booking</p>
@@ -195,6 +252,22 @@ function SwimmingBookingModal({
               claimedOfferId={claimedOfferId}
               onClaim={setClaimedOfferId}
             />
+            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.9rem" }}>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("card")}
+                style={{ ...buttonStyle, flex: 1, background: paymentMethod === "card" ? "#a47f50" : "transparent", color: paymentMethod === "card" ? "#fff" : "#a47f50", border: "1px solid #a47f50" }}
+              >
+                Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("mpesa")}
+                style={{ ...buttonStyle, flex: 1, background: paymentMethod === "mpesa" ? "#a47f50" : "transparent", color: paymentMethod === "mpesa" ? "#fff" : "#a47f50", border: "1px solid #a47f50" }}
+              >
+                M-Pesa
+              </button>
+            </div>
             <div style={{ display: "flex", gap: "0.7rem", marginBottom: "0.9rem" }}>
               <input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
               <input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
@@ -202,7 +275,7 @@ function SwimmingBookingModal({
             <input placeholder="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "0.9rem" }} />
             <input placeholder="Phone (e.g. 2547XXXXXXXX)" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, width: "100%", marginBottom: "1.2rem" }} />
             <button onClick={handleSubmit} disabled={submitting} style={{ ...buttonStyle, width: "100%" }}>
-              {submitting ? "Please wait…" : "Continue to Payment"}
+              {submitting ? "Please wait…" : paymentMethod === "mpesa" ? "Pay with M-Pesa" : "Continue to Payment"}
             </button>
             {error && <p style={{ color: "#b33", fontSize: "0.75rem", marginTop: "0.7rem" }}>{error}</p>}
           </>

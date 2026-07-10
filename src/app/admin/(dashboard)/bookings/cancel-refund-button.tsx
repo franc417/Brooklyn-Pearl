@@ -3,7 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function CancelRefundButton({ bookingId, amount, currency }: { bookingId: string; amount: number; currency: string }) {
+export default function CancelRefundButton({
+  sourceTable,
+  bookingId,
+  amount,
+  currency,
+}: {
+  sourceTable: "bookings" | "swimming_bookings" | "event_bookings";
+  bookingId: string;
+  amount: number;
+  currency: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +31,7 @@ export default function CancelRefundButton({ bookingId, amount, currency }: { bo
       const res = await fetch("/api/admin/bookings/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceTable: "bookings", sourceId: bookingId }),
+        body: JSON.stringify({ sourceTable, sourceId: bookingId }),
       });
       const data = await res.json();
       if (res.ok) {

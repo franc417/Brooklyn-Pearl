@@ -50,6 +50,7 @@ export const createSwimmingBookingSchema = z.object({
   email: z.string().trim().email(),
   phone: z.string().trim().min(7).max(20),
   claimedOfferId: z.string().uuid().optional(),
+  paymentMethod: z.enum(["card", "mpesa"]).default("card"),
 });
 
 export type CreateSwimmingBookingInput = z.infer<typeof createSwimmingBookingSchema>;

@@ -61,7 +61,7 @@ export default async function AdminBookingsPage() {
                 <td style={cellStyle}>
                   {/* Loyalty rewards were never actually charged — nothing to refund via Pesapal */}
                   {b.status === "confirmed" && !b.is_loyalty_reward && (
-                    <CancelRefundButton bookingId={b.id} amount={b.total_amount} currency={b.currency} />
+                    <CancelRefundButton sourceTable="bookings" bookingId={b.id} amount={b.total_amount} currency={b.currency} />
                   )}
                 </td>
               </tr>
