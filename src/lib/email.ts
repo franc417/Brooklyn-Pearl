@@ -1,6 +1,19 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy, not instantiated at module load — the Resend constructor throws
+// immediately if the API key is missing/empty, and this file gets imported
+// by several API routes. If it ran eagerly, that throw happens the moment
+// ANY of those routes is touched during Vercel's build-time page analysis,
+// crashing the entire deployment before a single request is served — not
+// just email sending. Lazy means a missing key only fails the specific
+// email send that needed it, at runtime, which is the correct blast radius.
+let resendClient: Resend | null = null;
+function getResendClient(): Resend {
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 export async function sendBookingConfirmationEmail(params: {
   to: string;
@@ -11,7 +24,7 @@ export async function sendBookingConfirmationEmail(params: {
   currency: string;
   bookingId: string;
 }) {
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.NOTIFICATION_EMAIL_FROM!,
     to: params.to,
     subject: "Your Brooklyn Pearl Resort reservation is confirmed",
@@ -39,7 +52,7 @@ export async function sendRestaurantReservationEmail(params: {
   tableNumber: string;
   reservationId: string;
 }) {
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.NOTIFICATION_EMAIL_FROM!,
     to: params.to,
     subject: "Your table at Brooklyn Pearl Resort is reserved",
@@ -66,7 +79,7 @@ export async function sendStaffEnquiryNotification(params: {
   enquiryType: string;
   message: string;
 }) {
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.NOTIFICATION_EMAIL_FROM!,
     to: process.env.NOTIFICATION_EMAIL_TO!,
     subject: `New enquiry: ${params.enquiryType.replace("_", " ")} — ${params.firstName} ${params.lastName}`,
