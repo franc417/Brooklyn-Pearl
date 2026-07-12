@@ -718,6 +718,14 @@
     }
     .reveal.visible { opacity: 1; transform: none; }
 
+    /* Fix: this was previously only set to display:none inside the mobile
+       media query below, meaning desktop viewports had NO rule hiding it at
+       all — it fell back to a <div>'s default display:block and showed as
+       plain unstyled links above the real nav. Pre-existing bug in the
+       original approved design, only caught once someone actually viewed
+       it on a real desktop browser. */
+    .mobile-menu { display: none; }
+
     /* ── MOBILE ── */
     @media (max-width: 900px) {
       nav { padding: 1rem 1.5rem; }
@@ -726,7 +734,6 @@
       .nav-book { display: none; }
       .hamburger { display: flex; }
       .mobile-menu {
-        display: none;
         position: fixed;
         inset: 0;
         background: var(--dark);
