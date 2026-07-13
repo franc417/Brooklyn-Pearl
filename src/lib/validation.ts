@@ -5,6 +5,7 @@ export const availabilityQuerySchema = z.object({
   checkOut: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "checkOut must be YYYY-MM-DD"),
   guests: z.coerce.number().int().min(1).max(12).default(1),
   roomTypeSlug: z.string().optional(), // omit or "any" to search all room types
+  category: z.enum(["hotel", "bnb"]).optional(), // omit to search both
 });
 
 export const createBookingSchema = z
@@ -18,6 +19,7 @@ export const createBookingSchema = z
     email: z.string().trim().email(),
     phone: z.string().trim().min(7).max(20),
     specialRequests: z.string().trim().max(1000).optional(),
+    paymentMethod: z.enum(["card", "mpesa"]).default("card"),
   })
   .refine((data) => data.checkOut > data.checkIn, {
     message: "checkOut must be after checkIn",
@@ -78,6 +80,31 @@ export const createRestaurantReservationSchema = z.object({
 });
 
 export type CreateRestaurantReservationInput = z.infer<typeof createRestaurantReservationSchema>;
+
+// ─── Conference ──────────────────────────────────────────────────────────
+
+export const conferenceAvailabilityQuerySchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD"),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM"),
+  durationHours: z.coerce.number().min(1).max(12).default(2),
+  attendeeCount: z.coerce.number().int().min(1).max(200).default(10),
+});
+
+export const createConferenceBookingSchema = z.object({
+  roomId: z.string().uuid(),
+  bookingStart: z.string().datetime({ offset: true }),
+  bookingEnd: z.string().datetime({ offset: true }),
+  attendeeCount: z.coerce.number().int().min(1).max(200),
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  email: z.string().trim().email(),
+  phone: z.string().trim().min(7).max(20),
+  organizationName: z.string().trim().max(120).optional(),
+  purpose: z.string().trim().max(300).optional(),
+  paymentMethod: z.enum(["card", "mpesa"]).default("card"),
+});
+
+export type CreateConferenceBookingInput = z.infer<typeof createConferenceBookingSchema>;
 
 // ─── Events ──────────────────────────────────────────────────────────────
 

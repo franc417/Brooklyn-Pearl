@@ -119,5 +119,35 @@ export async function confirmBookingSource(
     };
   }
 
+  if (sourceTable === "conference_bookings") {
+    const { data: conf } = await supabase
+      .from("conference_bookings")
+      .update({ status: "confirmed" })
+      .eq("id", sourceId)
+      .eq("status", "pending_payment")
+      .select("id, guest_first_name, guest_email, total_amount, currency, booking_start, booking_end, room_id")
+      .maybeSingle();
+    if (!conf) return null;
+
+    const { data: room } = await supabase
+      .from("conference_rooms")
+      .select("name")
+      .eq("id", conf.room_id)
+      .maybeSingle();
+
+    const start = new Date(conf.booking_start);
+    const end = new Date(conf.booking_end);
+
+    return {
+      guestEmail: conf.guest_email,
+      guestFirstName: conf.guest_first_name,
+      serviceName: room?.name ?? "Conference room",
+      dateLabel: `${start.toLocaleDateString("en-KE", { day: "numeric", month: "short" })}, ${start.toLocaleTimeString("en-KE", { hour: "numeric", minute: "2-digit" })}–${end.toLocaleTimeString("en-KE", { hour: "numeric", minute: "2-digit" })}`,
+      totalAmount: conf.total_amount,
+      currency: conf.currency,
+      sourceId: conf.id,
+    };
+  }
+
   return null;
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient, createServerSupabaseClient } from "@/lib/supabase/server";
 import { createBookingSchema } from "@/lib/validation";
 import { submitOrder } from "@/lib/pesapal";
+import { initiateStkPush } from "@/lib/mpesa";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
@@ -137,8 +138,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ bookingId: booking.id, status: "confirmed", loyaltyReward: true });
   }
 
-  // 4. Kick off payment with Pesapal — the guest is redirected to a hosted
-  // page offering card, M-Pesa, and Airtel Money.
+  // 4. Kick off payment — card via Pesapal's hosted page (card, M-Pesa,
+  // Airtel Money all offered there too), or M-Pesa direct via Daraja STK
+  // Push if the guest specifically chose that at checkout.
+  if (input.paymentMethod === "mpesa") {
+    try {
+      const stk = await initiateStkPush({
+        phone: input.phone,
+        amount: totalAmount,
+        accountReference: `RM-${booking.id.slice(0, 8)}`,
+        description: `${roomType.name} booking`,
+      });
+
+      await supabase.from("payments").insert({
+        source_table: "bookings",
+        source_id: booking.id,
+        provider: "mpesa",
+        provider_reference: stk.CheckoutRequestID,
+        amount: totalAmount,
+        currency: "KES",
+        status: "pending",
+        raw_response: stk,
+      });
+
+      return NextResponse.json({ bookingId: booking.id, mpesaPending: true, checkoutRequestId: stk.CheckoutRequestID });
+    } catch (err) {
+      return NextResponse.json(
+        {
+          bookingId: booking.id,
+          error: "Your room is held, but we couldn't send the M-Pesa prompt. Please try again or contact us directly.",
+          detail: err instanceof Error ? err.message : String(err),
+        },
+        { status: 502 }
+      );
+    }
+  }
+
   try {
     const order = await submitOrder({
       merchantReference: booking.id,

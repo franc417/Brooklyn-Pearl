@@ -15,23 +15,27 @@ export async function GET(request: NextRequest) {
     checkOut: searchParams.get("checkOut"),
     guests: searchParams.get("guests") ?? undefined,
     roomTypeSlug: searchParams.get("roomTypeSlug") ?? undefined,
+    category: searchParams.get("category") ?? undefined,
   });
 
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { checkIn, checkOut, guests, roomTypeSlug } = parsed.data;
+  const { checkIn, checkOut, guests, roomTypeSlug, category } = parsed.data;
 
   const supabase = createServiceRoleClient();
 
   let roomTypesQuery = supabase
     .from("room_types")
-    .select("id, name, slug, base_price_kes, base_price_usd, capacity, cover_image_url")
+    .select("id, name, slug, base_price_kes, base_price_usd, capacity, cover_image_url, category")
     .eq("is_published", true)
     .gte("capacity", guests);
 
   if (roomTypeSlug && roomTypeSlug !== "any") {
     roomTypesQuery = roomTypesQuery.eq("slug", roomTypeSlug);
+  }
+  if (category) {
+    roomTypesQuery = roomTypesQuery.eq("category", category);
   }
 
   const { data: roomTypes, error: roomTypesError } = await roomTypesQuery;

@@ -40,6 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/admin" style={navLinkStyle}>Overview</Link>
           <Link href="/admin/bookings" style={navLinkStyle}>Bookings</Link>
           <Link href="/admin/enquiries" style={navLinkStyle}>Enquiries</Link>
+          <Link href="/admin/verify-ticket" style={navLinkStyle}>Verify Ticket</Link>
         </nav>
 
         <div style={{ marginTop: "3rem" }}>
