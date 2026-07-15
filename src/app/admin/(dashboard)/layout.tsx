@@ -38,7 +38,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         <nav style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
           <Link href="/admin" style={navLinkStyle}>Overview</Link>
-          <Link href="/admin/bookings" style={navLinkStyle}>Bookings</Link>
+          <Link href="/admin/activity" style={navLinkStyle}>All Activity</Link>
+          <Link href="/admin/bookings" style={navLinkStyle}>Hotel Bookings</Link>
           <Link href="/admin/enquiries" style={navLinkStyle}>Enquiries</Link>
           <Link href="/admin/verify-ticket" style={navLinkStyle}>Verify Ticket</Link>
         </nav>
