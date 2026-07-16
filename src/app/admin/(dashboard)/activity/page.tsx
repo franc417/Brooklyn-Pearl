@@ -67,7 +67,7 @@ export default async function AdminActivityPage({
       .limit(50),
     supabase
       .from("offer_redemptions")
-      .select("id, applied_to_table, redeemed_at, ticket_number, verified_at, offers(title, reward_description)")
+      .select("id, applied_to_table, redeemed_at, ticket_number, verified_at, guest_first_name, guest_last_name, guest_email, offers(title, reward_description)")
       .order("redeemed_at", { ascending: false })
       .limit(50),
   ]);
@@ -154,8 +154,8 @@ export default async function AdminActivityPage({
     rows.push({
       id: o.id,
       type: "Offer",
-      guestName: "—", // offer_redemptions doesn't denormalize guest name — see admin dashboard gap notes
-      guestEmail: "—",
+      guestName: o.guest_first_name ? `${o.guest_first_name} ${o.guest_last_name ?? ""}`.trim() : "Unknown (predates guest tracking)",
+      guestEmail: o.guest_email ?? "—",
       serviceLabel: `${offer?.title ?? "Offer"} → ${o.applied_to_table}`,
       dateLabel: o.ticket_number ?? "—",
       amount: "—",

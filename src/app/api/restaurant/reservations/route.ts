@@ -65,6 +65,9 @@ export async function POST(request: NextRequest) {
       offer_id: input.claimedOfferId,
       applied_to_table: "restaurant_reservations",
       applied_to_id: reservation.id,
+      guest_first_name: input.firstName,
+      guest_last_name: input.lastName,
+      guest_email: input.email,
     });
   }
 

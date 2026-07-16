@@ -61,7 +61,7 @@ export async function confirmBookingSource(
       .update({ status: "confirmed" })
       .eq("id", sourceId)
       .eq("status", "pending_payment")
-      .select("id, guest_first_name, guest_email, total_amount, currency, session_id, claimed_offer_id")
+      .select("id, guest_first_name, guest_last_name, guest_email, total_amount, currency, session_id, claimed_offer_id")
       .maybeSingle();
     if (!swim) return null;
 
@@ -70,6 +70,9 @@ export async function confirmBookingSource(
         offer_id: swim.claimed_offer_id,
         applied_to_table: "swimming_bookings",
         applied_to_id: swim.id,
+        guest_first_name: swim.guest_first_name,
+        guest_last_name: swim.guest_last_name,
+        guest_email: swim.guest_email,
       });
     }
 
